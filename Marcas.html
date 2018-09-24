@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:margin-right="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Marcas Registradas</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <script src="scripts/jquery.js"></script>
+    <link rel="stylesheet" type="text/css" href="style/bootstrap.css" />
+    <script src="scripts/bootstrap.js"></script>
+    <link rel="stylesheet" href="style/font-awesome.min.css" />
+    <link href="https://fonts.googleapis.com/css?family=Slabo+27px" rel="stylesheet">
+    <script src="scripts/JsStore-1.1.4.min.js "></script>
+    <script>
+
+
+        // Cargar la BD
+        var DbConnection, global_id_marca = 0, count_productos = 0;
+
+        window.onload = function () {
+            initiateDb();
+        };
+
+        function initiateDb() {
+            var DbName = "Catalogo";
+            JsStore.isDbExist(DbName, function (isExist) {
+                if (isExist) { // Si la base de datos ya existe
+                    DbConnection = new JsStore.Instance(DbName);
+                    onDbInitiated();
+                } else { // Regresar al menu principal
+                    alert("Cambio");
+                    window.location.href = "PaginaInicio.html";
+                }
+            });
+        };
+        
+        //CORREGIR
+        function generar_JSON(){
+            DbConnection.exportJson({
+                from: "Producto",
+            }).then(function() {
+                console.log('Successfully exported');
+            }).catch(function(error) {
+                console.log(error);
+            });
+        };
+
+        // Crear conexion elementos pantalla
+        window.onload = function () {
+            initiateDb();
+
+            // Boton de prueba
+            $('#btnInicio').click(function () {
+                var Result = confirm('¿Estás seguro de regresar al Inicio?\nSe reiniciará la base de datos');
+                if (Result) {
+                    DbConnection.dropDb();
+                    window.location.href = "PaginaInicio.html";
+                }
+            });
+
+            // Vincular Botón Ver Lectores
+            $('#btnProductos').on('click',function () {
+                //alert("Cambio a Lectores");
+                window.location.href = 'Productos.html';
+            });
+
+            // Vincular Botón Editar
+            $('#tblGrid tbody').on('click', '.edit', function () {
+                var PrestamoId = $(this).parents().eq(1).attr('itemid');
+                window.location.href = 'addPrestamo.html?id=' + PrestamoId;
+            });
+
+            // Vincular botón Borrar
+            $('#tblGrid tbody').on('click', '.delete', function () {
+                var Result = confirm('¿Estás seguro de borrar esta marca?');
+                if (Result) {
+                    var id_marca = $(this).parents().eq(1).attr('itemid');
+                    //console.log("Id_marca: " + id_marca);
+                    borrar_marca(Number(id_marca));
+                }
+            });
+
+            // Cambiar a página Agregar Producto
+            $('#btnAgrMarca').click(function () {
+                window.location.href = 'AgregarMarca.html';
+            });
+
+            //Funcion para Exportar a JSON
+            $('#btnExportar').click(function () {
+                generar_JSON();
+            });
+        };
+
+        // Borrar registro de tabla por ID
+        function borrar_marca(id_marca) {
+            global_id_marca = id_marca;
+            //console.log("Productos a borrar: " + global_id_marca);
+            DbConnection.select({
+                From: "Producto",
+                Where: {
+                    Marca: id_marca
+                }
+            }, function (productos) {
+                count_productos = 0;
+                productos.forEach(function (producto) {
+                    count_productos ++;
+                } , function (error) {
+                    console.log(error);
+                });
+                //console.log("Productos a borrar: " + global_id_marca + ", " + count_productos);
+                if(count_productos > 0){
+                    alert("No se puede borrar.\nHay productos relacionados con la marca");
+                } else {
+                    DbConnection.delete({
+                        From: 'Marca',
+                        Where: {
+                            ID_Marca: global_id_marca
+                        }
+                    }, function (rowsDeleted) {
+                        console.log(rowsDeleted + ' rows deleted');
+                        if (rowsDeleted > 0) {
+                            showTableData();
+                            alert("Se eliminó el registro");
+                        }
+                    }, function (error) {
+                        alert(error.Message);
+                    });
+                }
+            });
+        }
+
+        // Mostrar Registros
+        function onDbInitiated() {
+            showTableData();
+        }
+
+        // Insertar Préstamo
+        function insertPrestamo() {
+            var Prestamos = getPrestamos();
+            DbConnection.insert({
+                Into: "Prestamo",
+                Values: Prestamos
+            }, function (rowsAdded) {
+
+            }, function (err) {
+                console.log(err);
+                alert('Error Occured while adding data')
+            })
+        }
+        
+        // Desplegar los registros
+        function showTableData() {
+            DbConnection.select({
+                From: "Marca"
+            }, function (marcas) {
+                var HtmlString = "";
+                marcas.forEach(function (marca) {
+                    //Revisar como poner marcar correo y teléfono
+                    HtmlString += "<tr ItemId=" + marca.ID_Marca + "><td>" +
+                        marca.Nombre + "</td><td>" +
+                        marca.Correo + "</td><td>" +
+                        marca.Telefono + "</td><td>";
+                    if(marca.Pagina_Web != "N/A"){
+                        HtmlString += "<a href="+marca.Pagina_Web + ">"+ marca.Pagina_Web +"</a></td><td>";
+                    } else {
+                        HtmlString += marca.Pagina_Web +"</a></td><td>";
+                    }
+                    HtmlString += "<a href='#' class='edit'>Editar</a></td>" +
+                        "<td><a href='#' class='delete''>Eliminar</a></td>";
+                }, function (error) {
+                    console.log(error);
+                })
+                $('#tblGrid tbody').html(HtmlString);
+            });
+        }
+
+    </script>
+</head>
+<body>
+    <div class="row row-centered " style="margin-top:10px; ">
+        <div class="col-xs-12 col-sm-10 col-centered">
+            <nav>
+                <div style="text-align:center;">
+                    <button id="btnProductos" class="btn btn-info"><i class="fa fa-user-circle" aria-hidden="true"></i>Catálogo de Productos</button>
+                    <button id="btnAgrMarca" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Marca Nueva</button>
+                    <button id="btnExportar" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i> Exportar a JSON</button>
+                    <button id="btnInicio" class="btn btn-warning"><i class="fa fa-book" aria-hidden="true"></i> Restaurar Sistema</button>
+                </div>
+            </nav>
+
+            <table id="tblGrid" class="table table-hover ">
+                <caption style="text-align:center;padding:7px 0px 7px 0px;background:#005B96;color:white;font-family:'Slabo 27px', serif;font-size:20px; ">Detalles de las Marcas Registradas</caption>
+                <thead>
+                    <tr>
+                        <th>Nombre de la Marca</th>
+                        <th>Correo</th>
+                        <th>Teléfono</th>
+                        <th>Página Web</th>
+                        <th></th>
+            			<th></th>
+                    </tr>
+                </thead>
+                <tbody></tbody> <!--Aquí se agregan los valores de los registros de los productos-->
+            </table>
+        </div>
+    </div>
+    <link href="style/main.css " rel="stylesheet " type="text/css " />
+</body>
+</html>
