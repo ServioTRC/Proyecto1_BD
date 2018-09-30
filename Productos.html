@@ -65,7 +65,7 @@
             // Vincular Botón Editar
             $('#tblGrid tbody').on('click', '.edit', function () {
                 var PrestamoId = $(this).parents().eq(1).attr('itemid');
-                window.location.href = 'addPrestamo.html?id=' + PrestamoId;
+                window.location.href = 'AgregarProducto.html?id=' + PrestamoId;
             });
 
             // Vincular botón Borrar
@@ -127,6 +127,7 @@
         }
         
         function obtener_nombre_marca(ID_Marca){
+            nombre_marca = "None";
             DbConnection.select({
                 From: "Marca",
                 Where: {
@@ -134,7 +135,6 @@
                 }
             }, function (marcas) {
                 marcas.forEach(function (marca) {
-                    console.log(marca.Nombre);
                     nombre_marca = marca.Nombre;
                 }, function (error) {
                     console.log(error);
@@ -149,13 +149,12 @@
             }, function (productos) {
                 var HtmlString = "";
                 productos.forEach(function (producto) {
+                    obtener_nombre_marca(producto.Marca);
                     HtmlString += "<tr ItemId=" + producto.ID_Producto + "><td>" +
                         producto.Nombre + "</td><td>" +
                         producto.Categoria + "</td><td>";
-                    
-                    //Revisar paso de returns en functions
-                    obtener_nombre_marca(producto.Marca)
-                    HtmlString += nombre_marca + "</td><td>";
+
+                    HtmlString += "\"MARCAplace\"" + "</td><td>";
 
                     if(producto.Imagen != "N/A"){
                         HtmlString += "<img src=" + producto.Imagen + " width=\"150\" height=\"150\"/> </td><td>";
@@ -163,14 +162,23 @@
                         HtmlString += producto.Imagen + "</td><td>";
                     }
                     
-                    //Poner las tiendas en Viñetas
-                    HtmlString += producto.Tiendas + "</td><td>" +
+                    HtmlString += "<ul>";
+
+                    for (var i = 0; i < producto.Tiendas.length; i++) {
+                        HtmlString += "<li>" + producto.Tiendas[i] + "</li>";
+                    } 
+
+                    HtmlString += "</ul></td><td>" +
                         "$" + producto.Precio_Promedio + " MXN</td><td>" +
                         "<a href='#' class='edit'>Editar</a></td>" +
                         "<td><a href='#' class='delete''>Eliminar</a></td>";
+                    
+
                 }, function (error) {
                     console.log(error);
-                })
+                });
+                //Mejorar llamadas asíncronas odio javascript
+                HtmlString = HtmlString.replace("\"MARCAplace\"", nombre_marca);
                 $('#tblGrid tbody').html(HtmlString);
             });
         }

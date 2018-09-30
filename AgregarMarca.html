@@ -1,0 +1,232 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Agregar/Editar Marca</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <script src="scripts/jquery.js"></script>
+    <link rel="stylesheet" type="text/css" href="style/bootstrap.css" />
+    <script src="scripts/bootstrap.js"></script>
+    <link rel="stylesheet" href="style/font-awesome.min.css" />
+    <script src="scripts/JsStore-1.1.4.min.js "></script>
+    <script>
+
+        // Cargar la BD
+        var DbConnection,
+            MarcaId;
+        window.onload = function () {
+            initiateDb();
+        };
+
+
+        function initiateDb() {
+            var DbName = "Catalogo";
+            JsStore.isDbExist(DbName, function (isExist) {
+                if (isExist) { // Si la base de datos ya existe
+                    DbConnection = new JsStore.Instance(DbName);
+                    onDbInitiated();
+                } else { // Regresar al menu principal
+                    alert("Cambio");
+                    window.location.href = "PaginaInicio.html";
+                }
+            });
+        };
+
+        function onDbInitiated() {
+            MarcaId = getQsValueByName('id');
+
+            if (MarcaId) {
+                DbConnection.select({
+                    From: "Marca",
+                    Where: {
+                        ID_Marca: parseInt(MarcaId)
+                    }
+                }, function (marcas) {
+                    if (marcas.length == 1) {
+                        $('#txtNombreMarca').val(marcas[0].Nombre);
+                        $('#txtCorreo').val(marcas[0].Correo);
+                        $('#txtTelefono').val(marcas[0].Telefono);
+                        $('#txtPaginaWeb').val(marcas[0].Pagina_Web);
+                    }
+                    else {
+                        alert('Invalid id');
+                    }
+
+                }, function (error) {
+                    alert(error.Message);
+                });
+            }
+        }
+
+        function Submit() {
+            if (MarcaId) {
+                updateMarca();
+            } else {
+                agregarMarca();
+            }
+        }
+        
+        function validarCorreo(email) {
+            var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return re.test(String(email).toLowerCase());
+        }
+        
+        function validarURL(url) {
+            var re =  /^(?:(?:https?|ftp):\/\/)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/;
+            return re.test(String(url).toLowerCase());
+        }
+
+        function updateMarca() {
+            var value = [{
+                Nombre: $('#txtNombreMarca').val(),
+                Correo: $('#txtCorreo').val(),
+                Telefono: $('#txtTelefono').val(),
+                Pagina_Web: $('#txtPaginaWeb').val()
+            }];
+            var correo_valido = validarCorreo(value[0].Correo);
+            var url_valido = validarURL(value[0].Pagina_Web);
+            if(correo_valido && url_valido){
+                DbConnection.select({
+                    From: "Marca",
+                    Where: {
+                        ID_Marca: MarcaId
+                    }
+                }, function (results) {
+                    if (results.length > 0) {
+                        connection.update({ 
+                            in: "Marca",
+                            set: value,
+                            where: {
+                                ID_Marca: MarcaId,
+                            }
+                        }).then(function(rowsUpdated) {
+                            alert("Registro actualizado");
+                        }).catch(function(err) {
+                            console.log(err);
+                        });
+                    } else {
+                        alert('Error editando registro');
+                    }
+
+                }, function (error) {
+                    alert(error.Message);
+                });
+            } else if(!correo_valido && !url_valido){
+                alert("Correo y Página Web inválidas");
+            }  else if(!correo_valido){
+                alert("Correo inválido");
+            } else if(!url_valido){
+                alert("Página Web inválida");
+            }           
+        }
+
+        function agregarMarca() {
+            var value = [{
+                Nombre: $('#txtNombreMarca').val(),
+                Correo: $('#txtCorreo').val(),
+                Telefono: $('#txtTelefono').val(),
+                Pagina_Web: $('#txtPaginaWeb').val()
+            }];
+            var correo_valido = validarCorreo(value[0].Correo);
+            var url_valido = validarURL(value[0].Pagina_Web);
+            if(correo_valido && url_valido){
+                DbConnection.select({
+                    From: "Marca",
+                    Where: {
+                        Nombre: String(value[0].Nombre)
+                    }
+                }, function (results) {
+                    console.log(value[0].Nombre);
+                    if (results.length > 0) {
+                        alert('Ya existe una Marca con este Nombre');
+                    } else {
+                        DbConnection.insert({
+                            Into: "Marca",
+                            Values: value
+                        }, function (rowsAdded) {
+                            alert('Marca Agregada');
+                            $('#txtNombreMarca').val("");
+                            $('#txtCorreo').val("");
+                            $('#txtTelefono').val("");
+                            $('#txtPaginaWeb').val("");
+                        }, function (err) {
+                            console.log(err);
+                            alert("Ocurrió un error al agregar la marca");
+                        });                  
+                    }
+                }, function (error) {
+                    alert(error.Message);
+                });
+            } else if(!correo_valido && !url_valido){
+                alert("Correo y Página Web inválidas");
+            }  else if(!correo_valido){
+                alert("Correo inválido");
+            } else if(!url_valido){
+                alert("Página Web inválida");
+            } 
+        }
+
+        function returnMarcas(){
+            window.location.href = "Marcas.html";
+        }
+    </script>
+</head>
+<body>
+    <div class="row row-centered">
+        <div class="col-xs-11 col-sm-8 col-centered">
+            <h1 align="center" >Crear o Actualizar una Marca</h1>
+                <form class="form-horizontal" data-student-id="" role="form" style="margin-top:50px;">
+                    <div class="form-group">
+                        <label class="control-label col-sm-3" for="txtNombreMarca">Nombre de la Marca:</label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control" id="txtNombreMarca" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3" for="txtCorreo">Correo:</label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control" id="txtCorreo" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3" for="txtTelefono">Teléfono:</label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control" id="txtTelefono" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3" for="txtPaginaWeb">Página Web:</label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control" id="txtPaginaWeb" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-12" style="text-align:center;margin-top:30px;">
+                            <button id="btnSubmit" type="button" onclick="Submit();" class="btn btn-primary" style="padding:9px 15px 9px 15px;">
+                                <i class="fa fa-check" aria-hidden="true"></i> <span>Ok</span>
+                            </button>
+                            <button id="btnCancel" type="button" onclick="returnMarcas();" class="btn btn-warning" style="padding:9px 15px 9px 15px;">
+                                <i class="fa fa-warning" aria-hidden="true"></i> <span>Cancelar</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+        </div>
+    </div>
+    <link href="style/main.css " rel="stylesheet " type="text/css " />
+    <script>
+        function getQsValueByName(name, url) {
+            if (!url) {
+                url = window.location.href;
+            }
+            name = name.replace(/[\[\]]/g, "\\$&");
+            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, " "));
+        }
+
+    </script>
+</body>
+</html>

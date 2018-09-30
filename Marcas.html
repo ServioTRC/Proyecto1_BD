@@ -66,7 +66,7 @@
             // Vincular Botón Editar
             $('#tblGrid tbody').on('click', '.edit', function () {
                 var PrestamoId = $(this).parents().eq(1).attr('itemid');
-                window.location.href = 'addPrestamo.html?id=' + PrestamoId;
+                window.location.href = 'AgregarMarca.html?id=' + PrestamoId;
             });
 
             // Vincular botón Borrar
@@ -157,8 +157,9 @@
                     //Revisar como poner marcar correo y teléfono
                     HtmlString += "<tr ItemId=" + marca.ID_Marca + "><td>" +
                         marca.Nombre + "</td><td>" +
-                        marca.Correo + "</td><td>" +
-                        marca.Telefono + "</td><td>";
+                        "<a href=\"mailto:" + marca.Correo + "\">" + marca.Correo + "</a></td><td>" +
+                        "<a href=tel:"+ marca.Telefono + "\">" + marca.Telefono + "</a></td><td>";
+
                     if(marca.Pagina_Web != "N/A"){
                         HtmlString += "<a href="+marca.Pagina_Web + ">"+ marca.Pagina_Web +"</a></td><td>";
                     } else {
