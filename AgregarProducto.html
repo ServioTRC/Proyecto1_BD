@@ -257,6 +257,12 @@
             popup.classList.toggle("show");
             setTimeout(function () { popup.classList.toggle("show");}, 3000);
         }
+
+        function showPopUpCat() {
+            var popup = document.getElementById("myPopupCat");
+            popup.classList.toggle("show");
+            setTimeout(function () { popup.classList.toggle("show");}, 3000);
+        }
     </script>
 </head>
 <body>
@@ -271,7 +277,9 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-sm-3" for="txtCategoria">Categoría:</label>
+                        <label class="control-label col-sm-3 popup" onclick="showPopUpCat()" for="txtCategoria">Categoría &#9432;:
+                            <span class="popuptext" id="myPopupCat">Dejar vacío en caso de no haber</span>
+                        </label>
                         <div class="col-sm-7">
                             <input type="text" class="form-control" id="txtCategoria" />
                         </div>

@@ -91,38 +91,40 @@
         // Borrar registro de tabla por ID
         function borrar_marca(id_marca) {
             global_id_marca = id_marca;
-            //console.log("Productos a borrar: " + global_id_marca);
+            console.log("ID_Marca a borrar: " + global_id_marca);
             DbConnection.select({
-                From: "Producto",
+                From: 'Marca',
                 Where: {
-                    Marca: id_marca
+                    ID_Marca: global_id_marca
                 }
-            }, function (productos) {
-                count_productos = 0;
-                productos.forEach(function (producto) {
-                    count_productos ++;
-                } , function (error) {
-                    console.log(error);
+            }, function (marcas) {
+                console.log("Marcas Name: " + marcas);
+                DbConnection.select({
+                    From: "Producto",
+                    Where: {
+                        Marca: marcas.Nombre
+                    }
+                }, function (productos) {
+                    console.log("Productos: " + productos);
+                    if(productos.length > 0){
+                        alert("No se puede borrar.\nHay productos relacionados con la marca");
+                    } else {
+                        DbConnection.delete({
+                            From: 'Marca',
+                            Where: {
+                                ID_Marca: global_id_marca
+                            }
+                        }, function (rowsDeleted) {
+                            console.log(rowsDeleted + ' rows deleted');
+                            if (rowsDeleted > 0) {
+                                showTableData();
+                                alert("Se eliminó el registro");
+                            }
+                        }, function (error) {
+                            alert(error.Message);
+                        });
+                    }
                 });
-                //console.log("Productos a borrar: " + global_id_marca + ", " + count_productos);
-                if(count_productos > 0){
-                    alert("No se puede borrar.\nHay productos relacionados con la marca");
-                } else {
-                    DbConnection.delete({
-                        From: 'Marca',
-                        Where: {
-                            ID_Marca: global_id_marca
-                        }
-                    }, function (rowsDeleted) {
-                        console.log(rowsDeleted + ' rows deleted');
-                        if (rowsDeleted > 0) {
-                            showTableData();
-                            alert("Se eliminó el registro");
-                        }
-                    }, function (error) {
-                        alert(error.Message);
-                    });
-                }
             });
         }
 

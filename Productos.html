@@ -132,9 +132,13 @@
                 var HtmlString = "";
                 productos.forEach(function (producto) {
                     HtmlString += "<tr ItemId=" + producto.ID_Producto + "><td>" +
-                        producto.Nombre + "</td><td>" +
-                        producto.Categoria + "</td><td>";
-
+                        producto.Nombre + "</td><td>";
+                    if(producto.Categoria.length == 0){
+                        HtmlString += "N/A</td><td>";
+                    } else {
+                        HtmlString += producto.Categoria + "</td><td>";
+                    }
+                    
                     HtmlString += producto.Marca + "</td><td>";
 
                     if(producto.Imagen != "N/A"){
@@ -143,14 +147,18 @@
                         HtmlString += producto.Imagen + "</td><td>";
                     }
                     
-                    HtmlString += "<ul>";
-
-                    for (var i = 0; i < producto.Tiendas.length; i++) {
-                        HtmlString += "<li>" + producto.Tiendas[i] + "</li>";
+                    if(producto.Tiendas.length == 0 || producto.Tiendas[0].length == 0){
+                        HtmlString += "N/A</td><td>";
+                    } else {
+                        HtmlString += "<ul>";
+                        for (var i = 0; i < producto.Tiendas.length; i++) {
+                            HtmlString += "<li>" + producto.Tiendas[i] + "</li>";
+                        }
+                        HtmlString += "</ul></td><td>";
                     } 
 
-                    HtmlString += "</ul></td><td>" +
-                        "$" + producto.Precio_Promedio + " MXN</td><td>" +
+
+                    HtmlString += "$" + producto.Precio_Promedio + " MXN</td><td>" +
                         "<a href='#' class='edit'>Editar</a></td>" +
                         "<td><a href='#' class='delete''>Eliminar</a></td>";
                     
