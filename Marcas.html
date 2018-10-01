@@ -27,7 +27,7 @@
                     DbConnection = new JsStore.Instance(DbName);
                     onDbInitiated();
                 } else { // Regresar al menu principal
-                    alert("Cambio");
+                    alert("Error en Base de Datos");
                     window.location.href = "PaginaInicio.html";
                 }
             });
@@ -35,14 +35,12 @@
         
         //CORREGIR
         function generar_JSON(){
-            DbConnection.exportJson({
-                from: "Producto",
-            }).then(function() {
-                console.log('Successfully exported');
-            }).catch(function(error) {
-                console.log(error);
+            DbConnection.select({
+                From: "Marca",
+            }, function (marcas) {
+                alert(JSON.stringify(marcas));
             });
-        };
+        }
 
         // Crear conexion elementos pantalla
         window.onload = function () {

@@ -2,7 +2,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>Agregar/Editar Marca</title>
+    <title>Agregar/Editar Producto</title>
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <script src="scripts/jquery.js"></script>
     <link rel="stylesheet" type="text/css" href="style/bootstrap.css" />
@@ -71,7 +71,7 @@
 
         // Cargar la BD
         var DbConnection,
-            MarcaId;
+            ProductoID;
         window.onload = function () {
             initiateDb();
         };
@@ -91,20 +91,22 @@
         };
 
         function onDbInitiated() {
-            MarcaId = getQsValueByName('id');
+            ProductoID = getQsValueByName('id');
 
-            if (MarcaId) {
+            if (ProductoID) {
                 DbConnection.select({
                     From: "Marca",
                     Where: {
-                        ID_Marca: parseInt(MarcaId)
+                        ID_Marca: parseInt(ProductoID)
                     }
                 }, function (marcas) {
                     if (marcas.length == 1) {
-                        $('#txtNombreMarca').val(marcas[0].Nombre);
-                        $('#txtCorreo').val(marcas[0].Correo);
-                        $('#txtTelefono').val(marcas[0].Telefono);
-                        $('#txtPaginaWeb').val(marcas[0].Pagina_Web);
+                        $('#txtNombreProducto').val(marcas[0].Nombre);
+                        $('#txtCategoria').val(marcas[0].Correo);
+                        $('#txtMarca').val(marcas[0].Telefono);
+                        $('#txtImagen').val(marcas[0].Imagen);
+                        $('#txtTiendas').val(marcas[0].Tiendas);
+                        $('#txtPrecio').val(marcas[0].Precio_Promedio);
                     }
                     else {
                         alert('Invalid id');
@@ -117,16 +119,11 @@
         }
 
         function Submit() {
-            if (MarcaId) {
-                updateMarca();
+            if (ProductoID) {
+                updateProduct();
             } else {
                 agregarMarca();
             }
-        }
-        
-        function validarCorreo(email) {
-            var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-            return re.test(String(email).toLowerCase());
         }
         
         function validarURL(url) {
@@ -134,20 +131,22 @@
             return re.test(String(url).toLowerCase());
         }
 
-        function updateMarca() {
+        function updateProduct() {
             var value = [{
-                Nombre: $('#txtNombreMarca').val(),
-                Correo: $('#txtCorreo').val(),
-                Telefono: $('#txtTelefono').val(),
-                Pagina_Web: $('#txtPaginaWeb').val()
+                Nombre: $('#txtNombreProducto').val(),
+                Categoria: $('#txtCategoria').val(),
+                Marca: $('#txtMarca').val(),
+                Imagen: $('#txtImagen').val(),
+                Tiendas: $('#txtImagen').val(),
+                Precio_Promedio: parseFloat($('#txtImagen').val())
             }];
-            var correo_valido = validarCorreo(value[0].Correo);
+
             var url_valido = validarURL(value[0].Pagina_Web);
-            if(correo_valido && url_valido){
+            if(url_valido){
                 DbConnection.select({
                     From: "Marca",
                     Where: {
-                        ID_Marca: MarcaId
+                        ID_Marca: ProductoID
                     }
                 }, function (results) {
                     if (results.length > 0) {
@@ -155,7 +154,7 @@
                             in: "Marca",
                             set: value,
                             where: {
-                                ID_Marca: MarcaId,
+                                ID_Marca: ProductoID,
                             }
                         }).then(function(rowsUpdated) {
                             alert("Registro actualizado");
@@ -169,21 +168,17 @@
                 }, function (error) {
                     alert(error.Message);
                 });
-            } else if(!correo_valido && !url_valido){
-                alert("Correo y Página Web inválidas");
-            }  else if(!correo_valido){
-                alert("Correo inválido");
-            } else if(!url_valido){
-                alert("Página Web inválida");
+            } else {
+                alert("Página Web de la imágen inválida");
             }           
         }
 
         function agregarMarca() {
             var value = [{
-                Nombre: $('#txtNombreMarca').val(),
-                Correo: $('#txtCorreo').val(),
-                Telefono: $('#txtTelefono').val(),
-                Pagina_Web: $('#txtPaginaWeb').val()
+                Nombre: $('#txtNombreProducto').val(),
+                Correo: $('#txtCategoria').val(),
+                Telefono: $('#txtMarca').val(),
+                Pagina_Web: $('#txtImagen').val()
             }];
             var correo_valido = validarCorreo(value[0].Correo);
             var url_valido = validarURL(value[0].Pagina_Web);
@@ -203,10 +198,10 @@
                             Values: value
                         }, function (rowsAdded) {
                             alert('Marca Agregada');
-                            $('#txtNombreMarca').val("");
-                            $('#txtCorreo').val("");
-                            $('#txtTelefono').val("");
-                            $('#txtPaginaWeb').val("");
+                            $('#txtNombreProducto').val("");
+                            $('#txtCategoria').val("");
+                            $('#txtMarca').val("");
+                            $('#txtImagen').val("");
                         }, function (err) {
                             console.log(err);
                             alert("Ocurrió un error al agregar la marca");
@@ -225,24 +220,19 @@
         }
 
         function returnMarcas(){
-            window.location.href = "Marcas.html";
+            window.location.href = "Productos.html";
         }
 
         // When the user clicks on div, open the popup
-        function showPopUpCorreo() {
-            var popup = document.getElementById("myPopupCorreo");
+        function showPopUpTienda() {
+            var popup = document.getElementById("myPopupTienda");
             popup.classList.toggle("show");
             setTimeout(function () { popup.classList.toggle("show");}, 3000);
         }
 
-        function showPopUpTel() {
-            var popup = document.getElementById("myPopupTel");
-            popup.classList.toggle("show");
-            setTimeout(function () { popup.classList.toggle("show");}, 3000);
-        }
-
-        function showPopUpPag() {
-            var popup = document.getElementById("myPopupPag");
+        // When the user clicks on div, open the popup
+        function showPopUpImagen() {
+            var popup = document.getElementById("myPopupImagen");
             popup.classList.toggle("show");
             setTimeout(function () { popup.classList.toggle("show");}, 3000);
         }
@@ -251,36 +241,46 @@
 <body>
     <div class="row row-centered">
         <div class="col-xs-11 col-sm-8 col-centered">
-            <h1 align="center" >Crear o Actualizar una Marca</h1>
+            <h1 align="center" >Crear o Actualizar un Producto</h1>
                 <form class="form-horizontal" data-student-id="" role="form" style="margin-top:50px;">
                     <div class="form-group">
-                        <label class="control-label col-sm-3" for="txtNombreMarca">Nombre de la Marca:</label>
+                        <label class="control-label col-sm-3" for="txtNombreProducto">Nombre del producto:</label>
                         <div class="col-sm-7">
-                            <input type="text" class="form-control" id="txtNombreMarca" />
+                            <input type="text" class="form-control" id="txtNombreProducto" />
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-sm-3 popup" onclick="showPopUpCorreo()" for="txtCorreo">Correo &#9432;:
-                            <span class="popuptext" id="myPopupCorreo">Dejar vacío en caso de no haber</span>
-                        </label>
+                        <label class="control-label col-sm-3" for="txtCategoria">Categoría:</label>
                         <div class="col-sm-7">
-                            <input type="text" class="form-control" id="txtCorreo" />
+                            <input type="text" class="form-control" id="txtCategoria" />
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-sm-3 popup" onclick="showPopUpTel()" for="txtTelefono">Teléfono &#9432;:
-                            <span class="popuptext" id="myPopupTel">Dejar vacío en caso de no haber</span>
-                        </label>
+                        <label class="control-label col-sm-3" for="txtMarca">Marca:</label>
                         <div class="col-sm-7">
-                            <input type="text" class="form-control" id="txtTelefono" />
+                            <input type="text" class="form-control" id="txtMarca" />
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-sm-3 popup" onclick="showPopUpPag()" for="txtPaginaWeb">Página Web &#9432;:
-                            <span class="popuptext" id="myPopupPag">Dejar vacío en caso de no haber</span>
+                        <label class="control-label col-sm-3 popup" onclick="showPopUpImagen()" for="txtImagen">URL de la Imagen &#9432;:
+                            <span class="popuptext" id="myPopupImagen">Dejar vacío en caso de no haber</span>
                         </label>
                         <div class="col-sm-7">
-                            <input type="text" class="form-control" id="txtPaginaWeb" />
+                            <input type="text" class="form-control" id="txtImagen" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3 popup" onclick="showPopUpTienda()" for="txtTiendas">Tiendas &#9432;:
+                            <span class="popuptext" id="myPopupTienda">Ingresar las tiendas separadas por una coma</span>
+                        </label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control" id="txtTiendas" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3" for="txtPrecio">Precio Promedio:</label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control" id="txtPrecio" />
                         </div>
                     </div>
                     <div class="form-group">

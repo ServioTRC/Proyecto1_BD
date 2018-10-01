@@ -26,7 +26,7 @@
                     DbConnection = new JsStore.Instance(DbName);
                     onDbInitiated();
                 } else { // Regresar al menu principal
-                    alert("Cambio");
+                    alert("Error en Base de Datos");
                     window.location.href = "PaginaInicio.html";
                 }
             });
@@ -34,14 +34,12 @@
         
         //CORREGIR
         function generar_JSON(){
-            DbConnection.exportJson({
-                from: "Producto",
-            }).then(function() {
-                console.log('Successfully exported');
-            }).catch(function(error) {
-                console.log(error);
+            DbConnection.select({
+                From: "Producto",
+            }, function (productos) {
+                alert(JSON.stringify(productos));
             });
-        };
+        }
 
         // Crear conexion elementos pantalla
         window.onload = function () {
@@ -125,22 +123,6 @@
                 alert('Error Occured while adding data')
             })
         }
-        
-        function obtener_nombre_marca(ID_Marca){
-            nombre_marca = "None";
-            DbConnection.select({
-                From: "Marca",
-                Where: {
-                    ID_Marca: ID_Marca
-                }
-            }, function (marcas) {
-                marcas.forEach(function (marca) {
-                    nombre_marca = marca.Nombre;
-                }, function (error) {
-                    console.log(error);
-                });
-            });
-        }
 
         // Desplegar los registros
         function showTableData() {
@@ -149,12 +131,11 @@
             }, function (productos) {
                 var HtmlString = "";
                 productos.forEach(function (producto) {
-                    obtener_nombre_marca(producto.Marca);
                     HtmlString += "<tr ItemId=" + producto.ID_Producto + "><td>" +
                         producto.Nombre + "</td><td>" +
                         producto.Categoria + "</td><td>";
 
-                    HtmlString += "\"MARCAplace\"" + "</td><td>";
+                    HtmlString += producto.Marca + "</td><td>";
 
                     if(producto.Imagen != "N/A"){
                         HtmlString += "<img src=" + producto.Imagen + " width=\"150\" height=\"150\"/> </td><td>";
@@ -177,8 +158,6 @@
                 }, function (error) {
                     console.log(error);
                 });
-                //Mejorar llamadas asíncronas odio javascript
-                HtmlString = HtmlString.replace("\"MARCAplace\"", nombre_marca);
                 $('#tblGrid tbody').html(HtmlString);
             });
         }
