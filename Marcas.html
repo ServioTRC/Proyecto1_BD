@@ -154,14 +154,24 @@
                 marcas.forEach(function (marca) {
                     //Revisar como poner marcar correo y teléfono
                     HtmlString += "<tr ItemId=" + marca.ID_Marca + "><td>" +
-                        marca.Nombre + "</td><td>" +
-                        "<a href=\"mailto:" + marca.Correo + "\">" + marca.Correo + "</a></td><td>" +
-                        "<a href=tel:"+ marca.Telefono + "\">" + marca.Telefono + "</a></td><td>";
-
-                    if(marca.Pagina_Web != "N/A"){
+                        marca.Nombre + "</td><td>";
+                    
+                    if(marca.Correo !== "N/A"){
+                        HtmlString += "<a href=\"mailto:" + marca.Correo + "\">" + marca.Correo + "</a></td><td>";
+                    } else {
+                        HtmlString += marca.Correo +"</td><td>";
+                    }
+                    
+                    if(marca.Telefono !== "N/A"){
+                        HtmlString += "<a href=tel:"+ marca.Telefono + "\">" + marca.Telefono + "</a></td><td>";
+                    } else {
+                        HtmlString += marca.Telefono +"</td><td>";
+                    }
+                    
+                    if(marca.Pagina_Web !== "N/A"){
                         HtmlString += "<a href="+marca.Pagina_Web + ">"+ marca.Pagina_Web +"</a></td><td>";
                     } else {
-                        HtmlString += marca.Pagina_Web +"</a></td><td>";
+                        HtmlString += marca.Pagina_Web +"</td><td>";
                     }
                     HtmlString += "<a href='#' class='edit'>Editar</a></td>" +
                         "<td><a href='#' class='delete''>Eliminar</a></td>";

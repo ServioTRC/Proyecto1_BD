@@ -105,8 +105,7 @@
                         $('#txtCorreo').val(marcas[0].Correo);
                         $('#txtTelefono').val(marcas[0].Telefono);
                         $('#txtPaginaWeb').val(marcas[0].Pagina_Web);
-                    }
-                    else {
+                    } else {
                         alert('Invalid id');
                     }
 
@@ -143,23 +142,24 @@
             }];
             var correo_valido = validarCorreo(value[0].Correo);
             var url_valido = validarURL(value[0].Pagina_Web);
-            if(correo_valido && url_valido){
+            if(correo_valido && url_valido && value[0].Nombre !== ""){
                 DbConnection.select({
                     From: "Marca",
                     Where: {
-                        ID_Marca: MarcaId
+                        ID_Marca: parseInt(MarcaId)
                     }
                 }, function (results) {
                     if (results.length > 0) {
-                        connection.update({ 
-                            in: "Marca",
-                            set: value,
-                            where: {
-                                ID_Marca: MarcaId,
+                        DbConnection.update({ 
+                            In: "Marca",
+                            Set: value[0],
+                            Where: {
+                                ID_Marca: parseInt(MarcaId),
                             }
-                        }).then(function(rowsUpdated) {
+                        }, function(rowsUpdated) {
                             alert("Registro actualizado");
-                        }).catch(function(err) {
+                            window.location.href = "Marcas.html";
+                        }, function(err) {
                             console.log(err);
                         });
                     } else {
@@ -200,7 +200,7 @@
                     } else {
                         DbConnection.insert({
                             Into: "Marca",
-                            Values: value
+                            Values: value[0]
                         }, function (rowsAdded) {
                             alert('Marca Agregada');
                             $('#txtNombreMarca').val("");

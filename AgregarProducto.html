@@ -95,23 +95,21 @@
 
             if (ProductoID) {
                 DbConnection.select({
-                    From: "Marca",
+                    From: "Producto",
                     Where: {
-                        ID_Marca: parseInt(ProductoID)
+                        ID_Producto: parseInt(ProductoID)
                     }
-                }, function (marcas) {
-                    if (marcas.length == 1) {
-                        $('#txtNombreProducto').val(marcas[0].Nombre);
-                        $('#txtCategoria').val(marcas[0].Correo);
-                        $('#txtMarca').val(marcas[0].Telefono);
-                        $('#txtImagen').val(marcas[0].Imagen);
-                        $('#txtTiendas').val(marcas[0].Tiendas);
-                        $('#txtPrecio').val(marcas[0].Precio_Promedio);
-                    }
-                    else {
+                }, function (productos) {
+                    if (productos.length == 1) {
+                        $('#txtNombreProducto').val(productos[0].Nombre);
+                        $('#txtCategoria').val(productos[0].Categoria);
+                        $('#txtMarca').val(productos[0].Marca);
+                        $('#txtImagen').val(productos[0].Imagen);
+                        $('#txtTiendas').val(productos[0].Tiendas);
+                        $('#txtPrecio').val(productos[0].Precio_Promedio);
+                    } else {
                         alert('Invalid id');
                     }
-
                 }, function (error) {
                     alert(error.Message);
                 });
@@ -122,7 +120,7 @@
             if (ProductoID) {
                 updateProduct();
             } else {
-                agregarMarca();
+                agregarProducto();
             }
         }
         
@@ -132,33 +130,37 @@
         }
 
         function updateProduct() {
+            var tiendas = $('#txtTiendas').val().split(",");
             var value = [{
                 Nombre: $('#txtNombreProducto').val(),
                 Categoria: $('#txtCategoria').val(),
                 Marca: $('#txtMarca').val(),
                 Imagen: $('#txtImagen').val(),
-                Tiendas: $('#txtImagen').val(),
-                Precio_Promedio: parseFloat($('#txtImagen').val())
+                Tiendas: tiendas,
+                Precio_Promedio: parseFloat($('#txtPrecio').val())
             }];
-
-            var url_valido = validarURL(value[0].Pagina_Web);
-            if(url_valido){
+            console.log(value[0].Imagen.length == 0);
+            var url_valido = validarURL(value[0].Imagen) || value[0].Imagen.length == 0;
+            if(value[0].Imagen.length == 0)
+                value[0].Imagen = "N/A";
+            if(url_valido && value[0].Precio_Promedio > 0){
                 DbConnection.select({
-                    From: "Marca",
+                    From: "Producto",
                     Where: {
-                        ID_Marca: ProductoID
+                        ID_Producto: parseInt(ProductoID)
                     }
                 }, function (results) {
                     if (results.length > 0) {
-                        connection.update({ 
-                            in: "Marca",
-                            set: value,
-                            where: {
-                                ID_Marca: ProductoID,
+                        DbConnection.update({ 
+                            In: "Producto",
+                            Set: value[0],
+                            Where: {
+                                ID_Producto: parseInt(ProductoID),
                             }
-                        }).then(function(rowsUpdated) {
+                        }, function(rowsUpdated) {
                             alert("Registro actualizado");
-                        }).catch(function(err) {
+                            window.location.href = "Productos.html";
+                        }, function(err) {
                             console.log(err);
                         });
                     } else {
@@ -168,55 +170,74 @@
                 }, function (error) {
                     alert(error.Message);
                 });
-            } else {
-                alert("Página Web de la imágen inválida");
-            }           
+            } else if(!url_valido){
+                alert("Página Web de la imagen inválida");
+            } else if(!value[0].Precio_Promedio > 0){
+                alert("Precio Promedio inválido");
+            }
         }
 
-        function agregarMarca() {
+        function agregarProducto() {
+            var tiendas = $('#txtTiendas').val().split(",");
             var value = [{
                 Nombre: $('#txtNombreProducto').val(),
-                Correo: $('#txtCategoria').val(),
-                Telefono: $('#txtMarca').val(),
-                Pagina_Web: $('#txtImagen').val()
+                Categoria: $('#txtCategoria').val(),
+                Marca: $('#txtMarca').val(),
+                Imagen: $('#txtImagen').val(),
+                Tiendas: tiendas,
+                Precio_Promedio: parseFloat($('#txtPrecio').val())
             }];
-            var correo_valido = validarCorreo(value[0].Correo);
-            var url_valido = validarURL(value[0].Pagina_Web);
-            if(correo_valido && url_valido){
+
+            console.log(value[0].Imagen.length == 0);
+            var url_valido = validarURL(value[0].Imagen) || value[0].Imagen.length == 0;
+            if(value[0].Imagen.length == 0)
+                value[0].Imagen = "N/A";
+            if(url_valido && value[0].Precio_Promedio > 0){
                 DbConnection.select({
-                    From: "Marca",
+                    From: "Producto",
                     Where: {
                         Nombre: String(value[0].Nombre)
                     }
                 }, function (results) {
                     console.log(value[0].Nombre);
                     if (results.length > 0) {
-                        alert('Ya existe una Marca con este Nombre');
+                        alert('Ya existe un producto con este Nombre');
                     } else {
-                        DbConnection.insert({
-                            Into: "Marca",
-                            Values: value
-                        }, function (rowsAdded) {
-                            alert('Marca Agregada');
-                            $('#txtNombreProducto').val("");
-                            $('#txtCategoria').val("");
-                            $('#txtMarca').val("");
-                            $('#txtImagen').val("");
-                        }, function (err) {
-                            console.log(err);
-                            alert("Ocurrió un error al agregar la marca");
-                        });                  
+                        DbConnection.select({
+                            From: "Marca",
+                            Where: {
+                                Nombre: String(value[0].Marca)
+                            }
+                        }, function (marcas) {
+                            if(marcas.length > 0){
+                                DbConnection.insert({
+                                    Into: "Producto",
+                                    Values: value
+                                }, function (rowsAdded) {
+                                    alert('Producto Agregado');
+                                    $('#txtNombreProducto').val("");
+                                    $('#txtCategoria').val("");
+                                    $('#txtMarca').val("");
+                                    $('#txtTiendas').val("");
+                                    $('#txtPrecio').val("");
+                                    $('#txtImagen').val("");
+                                }, function (err) {
+                                    console.log(err);
+                                    alert("Ocurrió un error al agregar el producto");
+                                }); 
+                            } else {
+                                alert("No existe la marca asociada al producto");
+                            }                             
+                        });                 
                     }
                 }, function (error) {
                     alert(error.Message);
                 });
-            } else if(!correo_valido && !url_valido){
-                alert("Correo y Página Web inválidas");
-            }  else if(!correo_valido){
-                alert("Correo inválido");
             } else if(!url_valido){
-                alert("Página Web inválida");
-            } 
+                alert("Página Web de la imagen inválida");
+            } else {
+                alert("Precio Promedio inválido");
+            }
         }
 
         function returnMarcas(){
