@@ -10,6 +10,7 @@ import { Catalog } from './components/Catalog';
 import { Marcas } from './components/Marcas';
 import { AddMarca } from './components/AddMarca';
 import { AddProducto } from './components/AddProduct';
+import { ModalProps, Modal } from './components/Modal';
 
 export type Pages =
     "agregarMarca" |
@@ -27,6 +28,7 @@ interface AppState {
     productos: Producto[];
     marcas: Marca[];
     search: { query: string, by: 'marca' | 'producto', to: 'marcas' | 'productos' };
+    showModal: Boolean;
 }
 
 class App extends React.Component<{}, AppState> {
@@ -35,10 +37,16 @@ class App extends React.Component<{}, AppState> {
     private service: BaseService;
     private marcaToEdit?: Marca;
     private productoToEdit?: Producto;
-
+    private modalProps: ModalProps;
 
     public constructor(props: {}) {
         super(props);
+        this.modalProps = {
+            onAccept: () => { },
+            onDecline: () => { },
+            text: "",
+            title: ""
+        }
         this.state = {
             what: "",
             display: "inicio",
@@ -48,7 +56,8 @@ class App extends React.Component<{}, AppState> {
                 by: "marca",
                 to: "marcas",
                 query: ""
-            }
+            },
+            showModal: false,
         }
     }
 
@@ -63,7 +72,7 @@ class App extends React.Component<{}, AppState> {
     }
 
     public render() {
-        const { display, productos, marcas, search } = this.state;
+        const { display, productos, marcas, search, showModal } = this.state;
         let element = <div>Empty div</div>
 
         switch (display) {
@@ -110,16 +119,45 @@ class App extends React.Component<{}, AppState> {
                             query
                         }
                     })}
+                    resetDatabase={() => {
+                        this.showModal({
+                            text: "Esta seguro que desea borra la base de datos?",
+                            title: "Borrar base de datos",
+                            onAccept: () => this.service.resetDatabase().then(() => this.refresh()),
+                            onDecline: () => { }
+                        })
+                    }}
+                    exportToJSON={() => {
+                        this.service.exportToJSON("Productos");
+                    }}
                 />
                 break;
             case "marcas":
                 element = <Marcas
                     navigateTo={(page: Pages) => { this.navigateTo(page); }}
                     marcas={marcas}
-                    removeMarca={(marca) => this.service.removeMarca(marca).then(() => this.refresh())}
+                    removeMarca={(marca) => {
+                        this.showModal({
+                            text: "Al borrar una marca se borraran todos sus productos, desea continuar?",
+                            title: "Borrar Marca",
+                            onAccept: () => this.service.removeMarca(marca).then(() => this.refresh()),
+                            onDecline: () => { }
+                        })
+                    }}
                     mustEditMarca={(marca) => {
                         this.marcaToEdit = marca;
                         this.navigateTo("editarMarca");
+                    }}
+                    resetDatabase={() => {
+                        this.showModal({
+                            text: "Esta seguro que desea borra la base de datos?",
+                            title: "Borrar base de datos",
+                            onAccept: () => this.service.resetDatabase().then(() => this.refresh()),
+                            onDecline: () => { }
+                        })
+                    }}
+                    exportToJSON={() => {
+                        this.service.exportToJSON("Marcas");
                     }}
                 />
                 break;
@@ -158,6 +196,9 @@ class App extends React.Component<{}, AppState> {
         return (
             <div className="App">
                 {element}
+                {showModal && <Modal
+                    {...this.modalProps}
+                />}
             </div>
         );
     }
@@ -186,6 +227,26 @@ class App extends React.Component<{}, AppState> {
                 query: "",
             }
         })
+    }
+
+    private showModal(modalProps: ModalProps) {
+        this.modalProps = {
+            onAccept: () => { modalProps.onAccept(); this.hideModal(); },
+            onDecline: () => { modalProps.onDecline(); this.hideModal(); },
+            title: modalProps.title,
+            text: modalProps.text
+        }
+        this.setState({ showModal: true });
+    }
+
+    private hideModal() {
+        this.modalProps = {
+            onAccept: () => { },
+            onDecline: () => { },
+            text: "",
+            title: ""
+        }
+        this.setState({ showModal: false });
     }
 }
 

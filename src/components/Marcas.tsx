@@ -15,11 +15,13 @@ interface MarcasProps {
     marcas: Marca[];
     removeMarca: (marca: Marca) => void;
     mustEditMarca: (marca: Marca) => void;
+    resetDatabase: () => void;
+    exportToJSON: () => void;
 }
 
 export class Marcas extends PureComponent<MarcasProps> {
     public render() {
-        const { marcas, navigateTo, removeMarca, mustEditMarca } = this.props;
+        const { marcas, navigateTo, removeMarca, mustEditMarca, exportToJSON, resetDatabase } = this.props;
         return <div className="row row-centered " style={{ marginTop: "10px" }}>
             <div className="col-xs-12 col-centered">
                 <nav>
@@ -30,8 +32,12 @@ export class Marcas extends PureComponent<MarcasProps> {
                         <button id="btnAgrMarcas" className="btn btn-primary" onClick={()=>{
                             navigateTo("agregarMarca");
                         }}><i className="fa fa-plus" aria-hidden="true"></i> Marca Nueva</button>
-                        <button id="btnExportar" className="btn btn-primary" style={{margin: "5px"}}><i className="fa fa-plus" aria-hidden="true"></i> Exportar a JSON</button>
-                        <button id="btnInicio" className="btn btn-warning" style={{margin: "5px"}}><i className="fa fa-book" aria-hidden="true"></i> Restaurar Sistema</button>
+                        <button id="btnExportar" className="btn btn-primary" style={{margin: "5px"}} onClick={()=> {
+                            exportToJSON();
+                        }}><i className="fa fa-plus" aria-hidden="true"></i> Exportar a JSON</button>
+                        <button id="btnInicio" className="btn btn-warning" style={{margin: "5px"}} onClick={()=> {
+                            resetDatabase();
+                        }}><i className="fa fa-book" aria-hidden="true"></i> Restaurar Sistema</button>
                     </div>
                 </nav>
                 <table id="tblGrid" className="table table-hover ">

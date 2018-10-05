@@ -132,4 +132,15 @@ export class BaseService {
             }
         });
     }
+
+    public async resetDatabase() {
+        await this.connection.dropDb();
+        return this.connection.createDb(this.getDatabase_())
+    }
+
+    public async exportToJSON(table: "Productos" | "Marcas") {
+        this.connection.exportJson({
+            from: table
+        });
+    }
 }

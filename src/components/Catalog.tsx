@@ -17,15 +17,18 @@ interface CatalogProps {
     removeProduct: (product: Producto) => void;
     getMarca: (marcaId: number) => Marca;
     filter: (by: 'marca' | 'producto', query: string) => void;
+    resetDatabase: () => void;
+    exportToJSON: () => void;
     productos: Producto[];
 }
 
 export class Catalog extends PureComponent<CatalogProps> {
 
     private by: 'marca' | 'producto' = "producto";
+    private query: string = "";
 
     public render() {
-        const { productos, navigateTo, mustEditProduct, removeProduct, getMarca, filter } = this.props;
+        const { productos, navigateTo, mustEditProduct, removeProduct, getMarca, filter, resetDatabase, exportToJSON } = this.props;
         return <div className="row row-centered " style={{ marginTop: "10px" }}>
             <div className="col-xs-12 col-centered">
                 <nav>
@@ -36,8 +39,12 @@ export class Catalog extends PureComponent<CatalogProps> {
                         <button id="btnAgrProducto" className="btn btn-primary" style={{ margin: "5px" }} onClick={() => {
                             navigateTo("agregarProducto");
                         }}><i className="fa fa-plus" aria-hidden="true"></i> Producto Nuevo</button>
-                        <button id="btnExportar" className="btn btn-primary" style={{ margin: "5px" }}><i className="fa fa-plus" aria-hidden="true"></i> Exportar a JSON</button>
-                        <button id="btnInicio" className="btn btn-warning" style={{ margin: "5px" }}><i className="fa fa-book" aria-hidden="true"></i> Restaurar Sistema</button>
+                        <button id="btnExportar" className="btn btn-primary" style={{ margin: "5px" }} onClick={() => {
+                            exportToJSON();
+                        }}><i className="fa fa-plus" aria-hidden="true"></i> Exportar a JSON</button>
+                        <button id="btnInicio" className="btn btn-warning" style={{ margin: "5px" }} onClick={() => {
+                            resetDatabase();
+                        }}><i className="fa fa-book" aria-hidden="true"></i> Restaurar Sistema</button>
                     </div>
                 </nav>
                 <table id="tblGrid" className="table table-hover ">
@@ -54,20 +61,23 @@ export class Catalog extends PureComponent<CatalogProps> {
                             <th style={{ width: "1px" }}>
                                 <div style={{ display: 'flex' }}>
                                     <div style={{ margin: 'auto 10px auto 0', marginRight: '10px' }}>search:</div>
-                                    <input type="text" className="form-control col" style={{ width: "150px", margin: 'auto 10px auto 0' }} onChange={(event) =>
-                                        filter(this.by, event.target.value.toLowerCase())
-                                    }>
+                                    <input type="text" className="form-control col" style={{ width: "150px", margin: 'auto 10px auto 0' }} onChange={(event) => {
+                                        this.query = event.target.value.toLowerCase();
+                                        filter(this.by, this.query);
+                                    }}>
                                     </input>
                                     <div>
-                                        <div className="radio" style={{margin: 0}}>
-                                            <label><input type="radio" name="optradio" checked onChange={(event) =>{
+                                        <div className="radio" style={{ margin: 0 }}>
+                                            <label><input type="radio" name="optradio" defaultChecked={this.by === "producto"} onChange={(event) => {
                                                 this.by = "producto";
-                                            }}/>Nombre</label>
+                                                filter(this.by, this.query);
+                                            }} />Nombre</label>
                                         </div>
-                                        <div className="radio" style={{margin: 0}}>
-                                            <label><input type="radio" name="optradio" onChange={(event) =>{
+                                        <div className="radio" style={{ margin: 0 }}>
+                                            <label><input type="radio" name="optradio" defaultChecked={this.by === "marca"} onChange={(event) => {
                                                 this.by = "marca";
-                                            }}/>Marca</label>
+                                                filter(this.by, this.query);
+                                            }} />Marca</label>
                                         </div>
                                     </div>
                                 </div>
