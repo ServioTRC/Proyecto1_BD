@@ -20,18 +20,19 @@ export class AcercaDe extends PureComponent<AcercaDeProps> {
                     </div>
                 </nav>
                 <h3>Descripción:</h3>
-                <h4>Primer proyecto de la materia de Base de Datos Avanzadas</h4>
+                <h4>Primer proyecto de la materia de Base de Datos Avanzadas:</h4>   
+                <h4><i>Creación de Base de Datos con IndexedDB</i></h4>
                 <hr />
                 <h3>Integrantes:</h3>
-                <h4>Ian</h4>
-                <h4>Andrea</h4>
-                <h4>Servio</h4>
+                <h4>Ian Neumann Sánchez A01377503</h4>
+                <h4>Andrea Salas Navarro A01371357</h4>
+                <h4>Servio Tulio Reyes Castillo A01371719</h4>
                 <br />
                 <hr />
                 <div style={{ textAlign: "center" }}>
                     <button id="btnRegresar" className="btn btn-lg" onClick={() => {
                         navigateTo("inicio");
-                    }}>Regresar</button>
+                    }}>Regresar a Pantalla Principal</button>
                 </div>
             </div>
         </div>;

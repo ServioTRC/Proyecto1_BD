@@ -3,6 +3,7 @@ import { idbCon } from "./idb_helper";
 import { IDataBase } from 'jsstore';
 import { MarcasTbl, ProductosTbl } from '../Tables';
 import { Producto, Marca } from '../Model';
+import { insertarMarcas, insertarProductos } from '../GenerateDB';
 
 export class BaseService {
     private static _instance: BaseService;
@@ -15,7 +16,7 @@ export class BaseService {
         return this._instance;
     }
 
-    private DbName = "Catalogo";;
+    private DbName = "Catalogo";
 
     private constructor() {
 
@@ -33,7 +34,9 @@ export class BaseService {
                 await this.connection.openDb(this.DbName);
                 //await this.connection.dropDb();
             } else {
-                await this.connection.createDb(this.getDatabase_())
+                await this.connection.createDb(this.getDatabase_());
+                await insertarMarcas(this.connection);
+                await insertarProductos(this.connection);
             }
             return true;
         } catch (err) {
@@ -135,7 +138,7 @@ export class BaseService {
 
     public async resetDatabase() {
         await this.connection.dropDb();
-        return this.connection.createDb(this.getDatabase_())
+        return this.connection.createDb(this.getDatabase_());
     }
 
     public async exportToJSON(table: "Productos" | "Marcas") {

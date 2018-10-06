@@ -3,14 +3,6 @@ import * as React from 'react';
 import { Pages } from '../App';
 import { Producto, Marca } from '../Model';
 
-// const producto: Producto = {
-//     IdMarca: 1,
-//     Categoria: "Shampoo",
-//     Imagen: "https://d3lfzbr90tctqz.cloudfront.net/epi/resource/r/shampoo-pantene-pro-v-brillo-extremo-400-ml/0cc8b17df720da62ca4dd25d442ac01c34b403310087c6c07247b8da31735820_100",
-//     Nombre: "Pantene Moisture Renewal",
-//     PrecioPromedio: 30.0
-// }  
-
 interface CatalogProps {
     navigateTo: (page: Pages) => void;
     mustEditProduct: (product: Producto) => void;
@@ -42,9 +34,12 @@ export class Catalog extends PureComponent<CatalogProps> {
                         <button id="btnExportar" className="btn btn-primary" style={{ margin: "5px" }} onClick={() => {
                             exportToJSON();
                         }}><i className="fa fa-plus" aria-hidden="true"></i> Exportar a JSON</button>
-                        <button id="btnInicio" className="btn btn-warning" style={{ margin: "5px" }} onClick={() => {
+                        <button id="btnInicio" className="btn btn-danger" style={{margin: "5px"}} onClick={()=> {
                             resetDatabase();
-                        }}><i className="fa fa-book" aria-hidden="true"></i> Restaurar Sistema</button>
+                        }}><i className="fa fa-ban" aria-hidden="true"></i> Formatear Sistema</button>
+                        <button id="btnAcercaDe" className="btn btn-info" style={{ margin: "5px" }} onClick={() => {
+                            navigateTo("acercaDe");
+                        }}><i className="fa fa-info" aria-hidden="true"></i> Acerca De</button>
                     </div>
                 </nav>
                 <table id="tblGrid" className="table table-hover ">
@@ -60,7 +55,7 @@ export class Catalog extends PureComponent<CatalogProps> {
                             <th></th>
                             <th style={{ width: "1px" }}>
                                 <div style={{ display: 'flex' }}>
-                                    <div style={{ margin: 'auto 10px auto 0', marginRight: '10px' }}>search:</div>
+                                    <div style={{ margin: 'auto 10px auto 0', marginRight: '10px' }}>Buscar:</div>
                                     <input type="text" className="form-control col" style={{ width: "150px", margin: 'auto 10px auto 0' }} onChange={(event) => {
                                         this.query = event.target.value.toLowerCase();
                                         filter(this.by, this.query);
@@ -91,8 +86,21 @@ export class Catalog extends PureComponent<CatalogProps> {
                                     <td>{producto.Nombre}</td>
                                     <td>{producto.Categoria}</td>
                                     <td>{getMarca(producto.IdMarca).Nombre}</td>
-                                    <td><img src={producto.Imagen}></img></td>
-                                    <td>{producto.Tiendas === undefined ? "" : producto.Tiendas.join()}</td>
+                                    <td>{(producto.Imagen != undefined && producto.Imagen.length > 0 ?
+                                        <img src={`${producto.Imagen}`} width={"150"} height={"150"}/>
+                                        : "N/A"
+                                    )}</td>
+                                    <td>{(producto.Tiendas === undefined || producto.Tiendas.length == 0 
+                                            || producto.Tiendas[0] === "" ? 
+                                        "N/A" 
+                                        : <ul>
+                                            {
+                                                producto.Tiendas.map((tienda) => {
+                                                    return <li>{tienda}</li>
+                                                })
+                                            }
+                                        </ul>
+                                    )}</td>
                                     <td>{producto.PrecioPromedio}</td>
                                     <td><button className="btn btn-info" onClick={() => {
                                         mustEditProduct(producto);

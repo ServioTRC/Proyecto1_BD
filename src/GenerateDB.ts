@@ -108,8 +108,20 @@ function generarMarcas() {
             Nombre: "Unilever",
             Correo: "unilever@unilever.com",
             Telefono: "5541232121",
-            Pagina_Web: "http://www.unilever.com"
-        }
+            PaginaWeb: "http://www.unilever.com"
+        },
+        {
+            Nombre: "Lenovo",
+            Correo: "lenovo@lenovo.com",
+            Telefono: "",
+            PaginaWeb: "http://www.lenovo.com"
+        },
+        {
+            Nombre: "Pantene",
+            Correo: "pantene@pantene.com",
+            Telefono: "989798792",
+            PaginaWeb: ""
+        } 
     ];
     return marcas;
 }
@@ -120,20 +132,36 @@ function generarProductos() {
         {
             Nombre: "Dove: Intense Moisture",
             Categoria: "Shampoo",
-            Marca: "Unilever",
+            IdMarca: 1,
             Imagen: "http://s4.reutersmedia.net/resources/r/?m=02&d=20090925&t=2&i=11724477&w=644&fh=&fw=&ll=&pl=&sq=&r=2009-09-25T132133Z_01_BTRE58O114100_RTROPTP_0_DOVE-INTENSE-MOISTURE-SHAMPOO-AND-CONDITIONER",
             Tiendas: ["Wal-Mart", "Sam's Club"],
-            Precio_Promedio: 25.50
+            PrecioPromedio: 25.50
+        }, 
+        {
+            Nombre: "Pantene Moisture Renewal",
+            Categoria: "Shampoo",
+            IdMarca: 3,
+            Imagen: "https://d3lfzbr90tctqz.cloudfront.net/epi/resource/r/shampoo-pantene-pro-v-brillo-extremo-400-ml/0cc8b17df720da62ca4dd25d442ac01c34b403310087c6c07247b8da31735820_100",
+            Tiendas: ["Farmacia del Ahorro"],
+            PrecioPromedio: 30.0
+        },
+        {
+            Nombre: "Pantene Pro-V",
+            Categoria: "Shampoo",
+            IdMarca: 3,
+            Imagen: "https://images-na.ssl-images-amazon.com/images/I/715cty2DbkL._SY355_.jpg",
+            Tiendas: [],
+            PrecioPromedio: 67.0
         }
     ];
     return productos;
 }
 
 //Insertar valores en la BD
-function insertarMarcas(DbConnection: Instance) {
+export function insertarMarcas(DbConnection: Instance) {
     var marcas = generarMarcas();
     DbConnection.insert({
-        into: "Marca",
+        into: "Marcas",
         values: marcas
     }).catch(function (err) {
         console.log(err);
@@ -142,10 +170,10 @@ function insertarMarcas(DbConnection: Instance) {
 }
 
 //Insertar valores en la BD
-function insertarProductos(DbConnection: Instance) {
+export function insertarProductos(DbConnection: Instance) {
     var productos = generarProductos();
     DbConnection.insert({
-        into: "Producto",
+        into: "Productos",
         values: productos
     }).catch(function (err) {
         console.log(err);

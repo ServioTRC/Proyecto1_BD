@@ -121,7 +121,7 @@ class App extends React.Component<{}, AppState> {
                     })}
                     resetDatabase={() => {
                         this.showModal({
-                            text: "Esta seguro que desea borra la base de datos?",
+                            text: "¿Esta seguro que desea borra la base de datos?",
                             title: "Borrar base de datos",
                             onAccept: () => this.service.resetDatabase().then(() => this.refresh()),
                             onDecline: () => { }
@@ -135,10 +135,12 @@ class App extends React.Component<{}, AppState> {
             case "marcas":
                 element = <Marcas
                     navigateTo={(page: Pages) => { this.navigateTo(page); }}
-                    marcas={marcas}
+                    marcas={marcas.filter((marca) => {
+                        return marca.Nombre.toLowerCase().includes(search.query);
+                    })}
                     removeMarca={(marca) => {
                         this.showModal({
-                            text: "Al borrar una marca se borraran todos sus productos, desea continuar?",
+                            text: "Al borrar una marca se borraran todos sus productos, ¿desea continuar?",
                             title: "Borrar Marca",
                             onAccept: () => this.service.removeMarca(marca).then(() => this.refresh()),
                             onDecline: () => { }
@@ -150,12 +152,19 @@ class App extends React.Component<{}, AppState> {
                     }}
                     resetDatabase={() => {
                         this.showModal({
-                            text: "Esta seguro que desea borra la base de datos?",
+                            text: "¿Esta seguro que desea borra la base de datos?",
                             title: "Borrar base de datos",
                             onAccept: () => this.service.resetDatabase().then(() => this.refresh()),
                             onDecline: () => { }
                         })
                     }}
+                    filter={(by, query) => this.setState({
+                        search: {
+                            by,
+                            to: "marcas",
+                            query
+                        }
+                    })}
                     exportToJSON={() => {
                         this.service.exportToJSON("Marcas");
                     }}

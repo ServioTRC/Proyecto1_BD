@@ -152,6 +152,10 @@ export class AddProducto extends Component<AddProductoProps, AddProductoState> {
             this.setState({errorPrecio: true});
             return;
         }
+        if(parseFloat(this.PrecioPromedio) < 0.0){
+            this.setState({errorPrecio: true});
+            return;
+        }
 
         if (producto === undefined) {
             addProducto({

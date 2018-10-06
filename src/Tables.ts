@@ -25,6 +25,7 @@ export const MarcasTbl: ITable = {
         
         new Column('PaginaWeb')
         .setDataType(DATA_TYPE.String)
+        .setDefault("N/A")
     ]
 };
 
@@ -60,4 +61,5 @@ export const ProductosTbl: ITable = {
         ]).setDataType(DATA_TYPE.Number)
     ]
 };
+
 
