@@ -103,7 +103,12 @@ class App extends React.Component<{}, AppState> {
                         }
                     })}
                     removeProduct={(producto) => {
-                        this.service.removeProduct(producto).then(() => this.refresh())
+                        this.showModal({
+                            text: "¿Esta seguro que desea el producto?",
+                            title: "Borrar Producto",
+                            onAccept: () => this.service.removeProduct(producto).then(() => this.refresh()),
+                            onDecline: () => { }
+                        })
                     }}
                     mustEditProduct={(producto) => {
                         this.productoToEdit = producto;
