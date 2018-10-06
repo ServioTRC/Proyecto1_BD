@@ -104,7 +104,7 @@ class App extends React.Component<{}, AppState> {
                     })}
                     removeProduct={(producto) => {
                         this.showModal({
-                            text: "¿Esta seguro que desea el producto?",
+                            text: "¿Esta seguro que desea eliminar el producto?",
                             title: "Borrar Producto",
                             onAccept: () => this.service.removeProduct(producto).then(() => this.refresh()),
                             onDecline: () => { }

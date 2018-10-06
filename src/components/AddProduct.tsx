@@ -58,11 +58,11 @@ export class AddProducto extends Component<AddProductoProps, AddProductoState> {
 
     public render() {
         const { existsMarca, existsProduct, navigateTo, producto } = this.props;
-        const { errorNombre, errorMarca, errorPrecio } = this.state;
+        const { errorNombre, errorMarca, errorPrecio, errorImagen} = this.state;
 
         return <div className="row row-centered">
             <div className="col-centered">
-                <h1>Crear o Actualizar una Producto</h1>
+                <h1>Crear o Actualizar un Producto</h1>
                 <form className="form-horizontal" data-student-id="" role="form" style={{ marginTop: "50px" }}>
                     <div className={`form-group ${errorNombre ? "has-error" : ""}`}>
                         <label className="control-label col-sm-3" htmlFor="txtNombreProducto">Nombre del Producto:</label>
@@ -91,7 +91,7 @@ export class AddProducto extends Component<AddProductoProps, AddProductoState> {
                             }} />
                         </div>
                     </div>
-                    <div className={`form-group`}>
+                    <div className={`form-group ${errorImagen ? "has-error" : ""}`}>
                         <label className="control-label col-sm-3" htmlFor="txtImagen">URL Imagen:</label>
                         <div className="col-sm-7">
                             <input type="text" className="form-control" id="txtImagen" defaultValue={this.Imagen} onChange={(event) => {
@@ -114,7 +114,7 @@ export class AddProducto extends Component<AddProductoProps, AddProductoState> {
                             <input type="text" className="form-control" id="txtPrecio" defaultValue={this.PrecioPromedio} onChange={(event) => {
                                 this.PrecioPromedio = event.target.value;
                                 let value: number = parseFloat(this.PrecioPromedio);
-                                this.setState({ errorPrecio: isNaN(value) });
+                                this.setState({ errorPrecio: isNaN(value) && value > 0.0});
                             }} />
                         </div>
                     </div>
