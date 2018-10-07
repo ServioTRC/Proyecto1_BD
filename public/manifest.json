@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Catálogo",
+  "name": "Proyecto de Base de Datos: Catálogo de Productos",
   "icons": [
     {
       "src": "favicon.ico",
